@@ -2,10 +2,6 @@ import sqlite3
 
 class Utilizator:
     def __init__(self, username, password, tag):
-        self.username = username
-        self.password = password
-        self.tag = tag
-
         self.connection = sqlite3.connect('mydata.db')
         self.cursor = self.connection.cursor()
         self.cursor.execute("""
@@ -17,7 +13,81 @@ class Utilizator:
             last_name TEXT
         )
         """)
-        
+        self.username = username
+        self.password = password
+        self.tag = tag
+
+    @classmethod
+    def username(cls):
+        connection = sqlite3.connect('mydata.db')
+        cursor = connection.cursor()
+        cursor.execute("SELECT username FROM utilizatori")
+        results = cursor.fetchall()
+
+        check = False
+        print('ATENTIE! Username-ul trebuie sa contina doar litere!')
+        while not check:
+            creare_username = input("Username: ")
+            x = [1 for user in results if creare_username in user]
+            if len(x) != 0:
+                print("Acest username este in folosinta. Va rugam alegeti altul.")
+                check = False
+            elif creare_username.isalpha() != True:
+                print("Username-ul trebuie sa contina doar litere.")
+                check = False
+            else:
+                try:
+                    x.pop(0)
+                except IndexError:
+                    pass
+                check = True
+                return creare_username
+    
+    @classmethod
+    def password(cls):
+        SpecialChar = ['!', '%', '&', '$', '#']
+
+        check = False
+        print('''ATENTIE! Parola trebuie sa contina:
+        - minim 8 caractere.
+        - minim o majuscula.
+        - minim o minuscula.
+        - minim o cifra
+        - minim una dintre caracterele !, %, &, $, #''')
+        while not check:
+            creare_password = input("Password: ")
+            if len(creare_password) < 8:
+                print("Parola trebuie sa contina minim 8 caractere.")
+                check = False
+            elif not any(char.isdigit() for char in creare_password):
+                print('Parola trebuie sa contina minim o cifra.')
+                check = False
+            elif not any(char.isupper() for char in creare_password):
+                print('Parola trebuie sa contina minim o majuscula.')
+                check = False
+            elif not any(char.islower() for char in creare_password):
+                print('Parola trebuie sa contina minim o minuscula.')
+                check = False
+            elif not any(char in SpecialChar for char in creare_password):
+                print('Parola trebuie sa contina minim una dintre caracterele !, %, &, $, #.')
+                check = False
+            else:
+                check = True
+                return creare_password
+    
+    @classmethod
+    def tag(cls):
+        check = False
+
+        while not check:
+            creare_tag = input('In ce scop creati acest cont? [Fotograf, Utilizator]: ')
+            if creare_tag not in ["Fotograf", "Utilizator"]:
+                print('Va rugam selectati una din optiunile valabile [Fotograf, Utilizator].')
+                check = False
+            else:
+                check = True
+                return creare_tag
+
     def create_user(self):
         self.cursor.execute("""
         INSERT INTO utilizatori VALUES
@@ -25,18 +95,14 @@ class Utilizator:
         """.format(self.username, self.password, self.tag))
 
         self.connection.commit()
-        self.connection.close()
 
     def load_user(self):
         self.cursor.execute("""
         SELECT * FROM utilizatori
         """)
 
-        results = self.cursor.fetchone()
-
-        self.tag = results[2]
-        self.first = results[3]
-        self.last = results[4]
+        results = self.cursor.fetchall()
+        print(results)
         
 class Fotograf(Utilizator):
     def __init__(self, username, password, tag, first_name, last_name, age, experience):
@@ -48,63 +114,14 @@ class Fotograf(Utilizator):
         
 class Client(Utilizator):
     def __init__(self, username, password, tag, first_name, last_name):
-        super(Utilizator, self).__init__(username, password, tag, first_name, last_name)
+        super(Utilizator, self).__init__(username, password, tag)
+        self.first_name = first_name
+        self.last_name = last_name
         
 class Portfolio(Fotograf):
-    def __init__(self, name, category):
-        super(Fotograf, self).__init__(name)
+    def __init__(self, title, category):
+        super(Fotograf, self).__init__(title)
         self.category = category
-
-# Check if user can be created
-def check_username(cursor):
-    global creare_username
-
-    cursor.execute("SELECT username FROM utilizatori")
-    results = cursor.fetchall()
-
-    while True:
-        x = [1 for user in results if creare_username in user]
-        if len(x) != 0:
-            print("Acest username este in folosinta. Va rugam alegeti altul.")
-            creare_username = input("Username: ")
-        elif creare_username.isalpha() != True:
-            print("Username-ul trebuie sa contina doar litere.")
-            creare_username = input("Username: ")
-        else:
-            try:
-                x.pop(0)
-            except IndexError:
-                pass
-            break
-
-# Check if password is valid
-def check_password(password):
-
-    SpecialChar = ['!', '%', '&', '$', '#']
-
-    if len(password) < 8:
-        print("Parola trebuie sa contina minim 8 caractere.")
-        return False
-    elif not any(char.isdigit() for char in password):
-        print('Parola trebuie sa contina minim o cifra.')
-        return False
-    elif not any(char.isupper() for char in password):
-        print('Parola trebuie sa contina minim o majuscula.')
-        return False
-    elif not any(char.islower() for char in password):
-        print('Parola trebuie sa contina minim o minuscula.')
-        return False
-    elif not any(char in SpecialChar for char in password):
-        print('Parola trebuie sa contina minim una dintre caracterele !, %, &, $, #.')
-        return False
-    else:
-        return True
-
-# Testing function
-def fetch_users(cursor):
-    cursor.execute("SELECT * FROM utilizatori")
-    results = cursor.fetchall()
-    print(results)
 
 menu = {
     "Start": ['1. Login', '2. Creare cont', '3. Iesire'],
@@ -113,48 +130,15 @@ menu = {
     "Utilizator": [],
 }
 
-connection = sqlite3.connect('mydata.db')
-cursor = connection.cursor()
-
-# # Create username and check if it meets requirements
-# creare_username = input('''ATENTIE! Username-ul trebuie sa contina doar litere!
-# Username: ''')
-# check_username(cursor)
-
-# # Create password and check if it meets requirements
-# creare_password = input('''ATENTIE! Parola trebuie sa contina:
-# - minim 8 caractere.
-# - minim o majuscula.
-# - minim o minuscula.
-# - minim o cifra
-# - minim una dintre caracterele !, %, &, $, #
-# Password: ''')
-# while not check_password(creare_password):
-#     creare_password = input("Password: ")
-
-# # What type of user is being created?
-# while True:
-#     try:
-#         creare_tag = input("In ce scop creati acest cont? [Fotograf, Utilizator]: ")
-#         assert creare_tag in ["Fotograf", "Utilizator"], "Va rugam selectati una din optiunile valabile [Fotograf, Utilizator]."
-#         if creare_tag in ['Fotograf', 'Utilizator']:
-#             break
-#     except AssertionError as ae:
-#         print(ae)
-
 # creare_first_name = input("Prenume: ")
 # creare_last_name = input("Nume: ")
-
-# account = Utilizator(creare_username, creare_password, creare_tag)
-# account.create_user()
-
-# fetch_users(cursor)
 
 # stergere_utilizator = input("Ce utilizator doriti sa stergeti?: ")
 
 # cursor.execute("DELETE FROM utilizatori WHERE username='{}'".format(stergere_utilizator))
 # connection.commit()
 
-# fetch_users(cursor)
-
-connection.close()
+if __name__ == '__main__':
+    create = Utilizator(Utilizator.username(), Utilizator.password(), Utilizator.tag())
+    create.create_user()
+    create.load_user()
