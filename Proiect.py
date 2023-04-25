@@ -1,12 +1,10 @@
-import sqlite3, string
+import sqlite3
 
 class Utilizator:
-    def __init__(self, username, password, tag, first_name, last_name):
+    def __init__(self, username, password, tag):
         self.username = username
         self.password = password
         self.tag = tag
-        self.first_name = first_name
-        self.last_name = last_name
 
         self.connection = sqlite3.connect('mydata.db')
         self.cursor = self.connection.cursor()
@@ -23,8 +21,8 @@ class Utilizator:
     def create_user(self):
         self.cursor.execute("""
         INSERT INTO utilizatori VALUES
-        ('{}', '{}', '{}', '{}', '{}')
-        """.format(self.username, self.password, self.tag, self.first_name, self.last_name))
+        ('{}', '{}', '{}', '', '')
+        """.format(self.username, self.password, self.tag))
 
         self.connection.commit()
         self.connection.close()
@@ -42,7 +40,9 @@ class Utilizator:
         
 class Fotograf(Utilizator):
     def __init__(self, username, password, tag, first_name, last_name, age, experience):
-        super(Utilizator, self).__init__(username, password, tag, first_name, last_name)
+        super(Utilizator, self).__init__(username, password, tag)
+        self.first_name = first_name
+        self.last_name = last_name
         self.age = age
         self.experience = experience
         
@@ -67,7 +67,7 @@ def check_username(cursor):
         if len(x) != 0:
             print("Acest username este in folosinta. Va rugam alegeti altul.")
             creare_username = input("Username: ")
-        elif len([1 for letter in creare_username if letter not in string.ascii_letters]) != 0:
+        elif creare_username.isalpha() != True:
             print("Username-ul trebuie sa contina doar litere.")
             creare_username = input("Username: ")
         else:
@@ -106,15 +106,11 @@ def fetch_users(cursor):
     results = cursor.fetchall()
     print(results)
 
-meniu = {
-    "1.": "Login",
-    "2.": "Creare cont",
-    "3.": "Vizualizati fotografi",
-    "4.": "Iesire",
-}
-
-meniu_ph = {
-    "1.": [],
+menu = {
+    "Start": ['1. Login', '2. Creare cont', '3. Iesire'],
+    "Admin": [],
+    "Fotograf": [],
+    "Utilizator": [],
 }
 
 connection = sqlite3.connect('mydata.db')
@@ -136,21 +132,21 @@ cursor = connection.cursor()
 # while not check_password(creare_password):
 #     creare_password = input("Password: ")
 
-# What type of user is being created?
-while True:
-    try:
-        creare_tag = input("In ce scop creati acest cont? [Fotograf, Utilizator]: ")
-        assert creare_tag in ["Fotograf", "Utilizator"], "Va rugam selectati una din optiunile valabile [Fotograf, Utilizator]."
-        if creare_tag in ['Fotograf', 'Utilizator']:
-            break
-    except AssertionError as ae:
-        print(ae)
+# # What type of user is being created?
+# while True:
+#     try:
+#         creare_tag = input("In ce scop creati acest cont? [Fotograf, Utilizator]: ")
+#         assert creare_tag in ["Fotograf", "Utilizator"], "Va rugam selectati una din optiunile valabile [Fotograf, Utilizator]."
+#         if creare_tag in ['Fotograf', 'Utilizator']:
+#             break
+#     except AssertionError as ae:
+#         print(ae)
 
 # creare_first_name = input("Prenume: ")
 # creare_last_name = input("Nume: ")
 
-# creare_cont = Utilizator(creare_username, creare_password, creare_tag, creare_first_name, creare_last_name)
-# creare_cont.create_user()
+# account = Utilizator(creare_username, creare_password, creare_tag)
+# account.create_user()
 
 # fetch_users(cursor)
 
