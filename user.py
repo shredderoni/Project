@@ -1,27 +1,29 @@
-import sqlite3
+import sqlite3 as sql
 
-class Utilizator:
-    def __init__(self, username, password, tag):
-        self.connection = sqlite3.connect('mydata.db')
-        self.cursor = self.connection.cursor()
-        self.cursor.execute("""
-        CREATE TABLE IF NOT EXISTS utilizatori (
-            username TEXT PRIMARY KEY,
-            password VARCHAR(15) NOT NULL,
-            tag TEXT,
-            first_name TEXT,
-            last_name TEXT
+connect = sql.connect("data.db")
+cursor = connect.cursor()
+cursor.execute("""
+        CREATE TABLE IF NOT EXISTS users (
+            user_id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_login NVARCHAR(60) NOT NULL,
+            user_password NVARCHAR(60) NOT NULL,
+            user_first_name NVARCHAR(60),
+            user_last_name NVARCHAR(60),
+            user_tag NVARCHAR(60)
         )
         """)
+
+class User:
+    def __init__(self, username, password, first_name, last_name, tag):
         self.username = username
         self.password = password
+        self.first_name = first_name
+        self.last_name = last_name
         self.tag = tag
 
     @classmethod
     def username(cls):
-        connection = sqlite3.connect('mydata.db')
-        cursor = connection.cursor()
-        cursor.execute("SELECT username FROM utilizatori")
+        cursor.execute("SELECT user_login FROM users")
         results = cursor.fetchall()
 
         check = False
@@ -74,7 +76,33 @@ class Utilizator:
             else:
                 check = True
                 return creare_password
-    
+            
+    @classmethod
+    def first_name(cls):
+        check = False
+
+        while not check:
+            creare_first_name = input('Prenume: ')
+            if not creare_first_name.isalpha():
+                print('Numele trebuie sa contina doar litere.')
+                check = False
+            else:
+                check = True
+                return creare_first_name
+            
+    @classmethod
+    def last_name(cls):
+        check = False
+
+        while not check:
+            creare_last_name = input('Nume: ')
+            if not creare_last_name.isalpha():
+                print('Numele trebuie sa contina doar litere.')
+                check = False
+            else:
+                check = True
+                return creare_last_name
+            
     @classmethod
     def tag(cls):
         check = False
@@ -89,56 +117,32 @@ class Utilizator:
                 return creare_tag
 
     def create_user(self):
-        self.cursor.execute("""
-        INSERT INTO utilizatori VALUES
-        ('{}', '{}', '{}', '', '')
-        """.format(self.username, self.password, self.tag))
+        cursor.execute("""
+        INSERT INTO users (user_login, user_password, user_first_name, user_last_name, user_tag) VALUES (?, ?, ?, ?, ?)
+        """, (self.username, self.password, self.first_name, self.last_name, self.tag))
 
-        self.connection.commit()
+        connect.commit()
 
     def load_user(self):
-        self.cursor.execute("""
-        SELECT * FROM utilizatori
+        cursor.execute("""
+        SELECT * FROM users
         """)
 
-        results = self.cursor.fetchall()
+        results = cursor.fetchall()
         print(results)
-        
-class Fotograf(Utilizator):
-    def __init__(self, username, password, tag, first_name, last_name, age, experience):
-        super(Utilizator, self).__init__(username, password, tag)
-        self.first_name = first_name
-        self.last_name = last_name
-        self.age = age
-        self.experience = experience
-        
-class Client(Utilizator):
-    def __init__(self, username, password, tag, first_name, last_name):
-        super(Utilizator, self).__init__(username, password, tag)
-        self.first_name = first_name
-        self.last_name = last_name
-        
-class Portfolio(Fotograf):
-    def __init__(self, title, category):
-        super(Fotograf, self).__init__(title)
-        self.category = category
 
-menu = {
-    "Start": ['1. Login', '2. Creare cont', '3. Iesire'],
-    "Admin": [],
-    "Fotograf": [],
-    "Utilizator": [],
-}
-
-# creare_first_name = input("Prenume: ")
-# creare_last_name = input("Nume: ")
+    @classmethod
+    def initiate(cls):
+        create = User(User.username(), User.password(), User.first_name(), User.last_name(), User.tag())
+        create.create_user()
 
 # stergere_utilizator = input("Ce utilizator doriti sa stergeti?: ")
 
-# cursor.execute("DELETE FROM utilizatori WHERE username='{}'".format(stergere_utilizator))
+# cursor.execute("DELETE FROM users WHERE user_login=?", (stergere_utilizator))
 # connection.commit()
 
 if __name__ == '__main__':
-    create = Utilizator(Utilizator.username(), Utilizator.password(), Utilizator.tag())
+    # User('', '', '', '', '')
+    create = User(User.username(), User.password(), User.first_name(), User.last_name(), User.tag())
     create.create_user()
     create.load_user()
