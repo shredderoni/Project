@@ -8,10 +8,10 @@ cursor.execute("""
             image_id INTEGER PRIMARY KEY AUTOINCREMENT,
             image_name NVARCHAR(60),
             image_data BLOB,
-            image_portfolio_id INTEGER,
-            FOREIGN KEY (image_portfolio_id) REFERENCES portfolios (portfolio_id)
+            image_portfolio_title NVARCHAR(60),
         )
         """)
+# FOREIGN KEY (image_portfolio_id) REFERENCES portfolios (portfolio_id)
 
 class Image:
     def __init__(self, image, name):
@@ -19,7 +19,7 @@ class Image:
         self.name = name
 
     @classmethod
-    def add_image(cls):
+    def select_image(cls):
         check = False
 
         while not check:
@@ -55,9 +55,10 @@ class Image:
 
     @classmethod
     def initiate(cls):
-        add = Image(Image.add_image(), Image.image_name())
+        add = Image(Image.select_image(), Image.image_name())
         add.insert_image()
+        connect.close()
 
 if __name__ == '__main__':
-    add = Image(Image.add_image(), Image.image_name())
+    add = Image(Image.select_image(), Image.image_name())
     add.insert_image()
