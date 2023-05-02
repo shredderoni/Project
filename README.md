@@ -1,3 +1,3 @@
 ## Project
 
-![Program functionality](Program functionality.png)
+![Program functionality](./Program functionality.png)
