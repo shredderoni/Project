@@ -1,3 +1,3 @@
 ## Project
 
-![Program functionality](./Program functionality.png)
+![Program functionality](https://i.imgur.com/UAW5gSY.png)
