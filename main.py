@@ -12,5 +12,8 @@ while True:
     Pentru login, selectati 1.
     Pentru a crea un cont nou, selectati 2.
 """)
-    option = int(input('Optiunea dumneavoastra: '))
-    menu[option]()
+    try:
+        option = int(input('Optiunea dumneavoastra: '))
+        menu[option]()
+    except ValueError:
+        print(User.valoare_invalida)
