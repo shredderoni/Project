@@ -1,5 +1,4 @@
 import sqlite3 as sql
-from user import User
 
 connect = sql.connect("data.db")
 cursor = connect.cursor()
@@ -15,6 +14,11 @@ cursor.execute("""
 # FOREIGN KEY (portfolio_photographer_id) REFERENCES users (user_id)
 
 class Portfolio:
+    valoare_invalida = """
+* *  ********************************  * *
+ *   Ati introdus o valoare invalida!   *
+* *  ********************************  * *
+"""
     def __init__(self, title, category, name, username):
         self.title = title
         self.category = category
@@ -57,7 +61,7 @@ class Portfolio:
                     check = True
                     return category_list[portfolio_category]
             except ValueError:
-                print(User.valoare_invalida)
+                print(__class__.valoare_invalida)
     
     def insert_portfolio(self):
         cursor.execute("""
@@ -98,7 +102,7 @@ Pentru revenirea la meniul anterior, selectati 6.
                 else:
                     print('Optiunea selectata nu este valida.')
             except ValueError:
-                print(User.valoare_invalida)
+                print(cls.valoare_invalida)
 
     @classmethod
     def initiate_create(cls, name, username):

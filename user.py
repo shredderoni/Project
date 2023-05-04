@@ -20,7 +20,8 @@ class User:
     valoare_invalida = """
 * *  ********************************  * *
  *   Ati introdus o valoare invalida!   *
-* *  ********************************  * *"""
+* *  ********************************  * *
+"""
 
     def __init__(self, username, password, first_name, last_name, tag):
         self.username = username
@@ -104,16 +105,32 @@ class User:
                 return create_last_name
             
     @staticmethod
-    def tag():
+    def tag(type):
+        options = {
+            1: 'Utilizator',
+            2: 'Fotograf',
+            3: 'Admin'
+        }
+        print('Tipuri de cont:')
+        if type == '':
+            for i,j in options.items():
+                print(f'{i} -> {j}')
+        elif type == 'Admin':
+            options_filtered = {key: options[key] for key in options.keys() & {1, 2}}
+            for i,j in options_filtered.items():
+                print(f'{i} -> {j}') 
         check = False
         while not check:
-            creare_tag = input('In ce scop creati acest cont? [Fotograf, Utilizator]: ')
-            if creare_tag not in ["Fotograf", "Utilizator"]:
-                print('Va rugam selectati una din optiunile valabile [Fotograf, Utilizator].')
-                check = False
-            else:
-                check = True
-                return creare_tag
+            try:
+                creare_tag = int(input('In ce scop creati acest cont? (numarul tipului, de ex. 1): '))
+                if creare_tag not in range(1,4): 
+                    print('Va rugam selectati una din optiunile valabile.')
+                    check = False
+                else:
+                    check = True
+                    return options[creare_tag]
+            except ValueError:
+                print(__class__.valoare_invalida)
 
     # Trecerea utilizatorului in baza de date
     def insert_user(self):
@@ -160,13 +177,14 @@ class User:
             else:
                 check_password += 3
                 cls.menu_user(username)
+        print('V-ati logat cu succes!')
 
     # Meniu principal dupa login
     @classmethod
-    def menu_user(cls, user_login):
-        cursor.execute("SELECT user_login, user_first_name FROM users WHERE user_login = '{}'".format(user_login))
+    def menu_user(cls, username):
+        cursor.execute("SELECT user_login, user_first_name FROM users WHERE user_login = '{}'".format(username))
         db_first_name = cursor.fetchall()[0][1]
-        cursor.execute("SELECT user_login, user_last_name FROM users WHERE user_login = '{}'".format(user_login))
+        cursor.execute("SELECT user_login, user_last_name FROM users WHERE user_login = '{}'".format(username))
         db_last_name = cursor.fetchall()[0][1]
         db_name = db_first_name + ' ' + db_last_name
 
@@ -184,9 +202,9 @@ class User:
             try:
                 option = int(input('Optiunea dumneavoastra: '))
                 if option == 1:
-                    main_menu[option](user_login)
+                    main_menu[option](username)
                 elif option == 2:
-                    main_menu[option](db_name, user_login)
+                    main_menu[option](db_name, username)
                 elif option == 3:
                     print('Iesire submeniu...')
                     return
@@ -197,58 +215,63 @@ class User:
 
     # Submeniu utilizator
     @classmethod
-    def submenu_user(cls, user_login):
-        cursor.execute("SELECT user_login, user_tag FROM users WHERE user_login = '{}'".format(user_login))
+    def submenu_user(cls, username):
+        cursor.execute("SELECT user_login, user_tag FROM users WHERE user_login = '{}'".format(username))
         db_tag = cursor.fetchall()[0][1]
 
         while True:
             if db_tag == 'Fotograf' or db_tag == 'Utilizator':
                 print("""
-    Pentru a schimba parola, selectati 1.
-    Pentru a schimba tipul de utilizator, selectati 2.        
-    Pentru a schimba numele, selectati 3.
-    Pentru a reveni la meniul anterior, selectati 4.
+    Pentru a vizualiza detaliile contului dumneavoastra, selectati 1.
+    Pentru a schimba parola, selectati 2.
+    Pentru a schimba tipul de utilizator, selectati 3.        
+    Pentru a schimba numele, selectati 4.
+    Pentru a reveni la meniul anterior, selectati 5.
     """)
                 sub_menu = {
-                    1: User.change_password,
-                    2: User.change_tag,
-                    3: User.change_name
+                    1: User.details_user,
+                    2: User.change_password,
+                    3: User.change_tag,
+                    4: User.change_name
                 }
                 try:
                     option = int(input('Optiunea dumneavoastra: '))
-
-                    if option == 4:
+                    if option == 5:
                         print('Iesire submeniu...')
                         return
-                    elif option not in range(1, 5):
+                    elif option not in range(1, 6):
                         print('Optiunea selectata nu este valida.')    
-                    sub_menu[option](user_login)
+                    sub_menu[option](username)
                 except ValueError:
                     print(cls.valoare_invalida)
 
             elif db_tag == 'Admin':
                 print("""
-    Pentru a schimba parola, selectati 1.
-    Pentru a schimba numele, selectati 2.
-    Pentru a vizualiza toti utilizatorii, selectati 3.
-    Pentru a sterge un utilizator, selectati 4. 
-    Pentru a crea un utilizator, selectati 5.
-    Pentru a reveni la meniul anterior, selectati 6.
+    Pentru a vizualiza detaliile contului dumneavoastra, selectati 1.
+    Pentru a schimba parola, selectati 2.
+    Pentru a schimba numele, selectati 3.
+    Pentru a vizualiza toti utilizatorii, selectati 4.
+    Pentru a sterge un utilizator, selectati 5. 
+    Pentru a crea un utilizator, selectati 6.
+    Pentru a reveni la meniul anterior, selectati 7.
     """)
                 sub_menu = {
-                    1: User.change_password,
-                    2: User.change_name,
-                    3: User.display_user,
-                    4: User.delete_user,
-                    5: ''
+                    1: User.details_user,
+                    2: User.change_password,
+                    3: User.change_name,
+                    4: User.display_user,
+                    5: User.delete_user,
+                    6: User.initiate_create
                 }
                 try:
                     option = int(input('Optiunea dumneavoastra: '))
-                    if option in range(1, 3):
-                        sub_menu[option](user_login)
-                    elif option in range(3, 6):
+                    if option in range(1, 4):
+                        sub_menu[option](username)
+                    elif option in range(4, 6):
                         sub_menu[option]()
                     elif option == 6:
+                        sub_menu[option]('Admin')
+                    elif option == 7:
                         print('Iesire submeniu...')
                         return
                     else:
@@ -258,7 +281,7 @@ class User:
     
     # Account settings
     @classmethod
-    def change_password(cls, user_login):
+    def change_password(cls, username):
         print("""
 *****  *****  *****  *****  *****    *    *****  *****    *****    *    *****  *****  *        *
 *   *  *      *      *        *     * *   *   *  *        *   *   * *   *   *  *   *  *       * *
@@ -266,11 +289,12 @@ class User:
 *  *   *          *  *        *    *   *  *  *   *        *      *   *  *  *   *   *  *      *   *
 *   *  *****  *****  *****    *    *   *  *   *  *****    *      *   *  *   *  *****  *****  *   *
 """)
-        cursor.execute("UPDATE users SET user_password = ? WHERE user_login = ?", (User.password(), user_login))
+        cursor.execute("UPDATE users SET user_password = ? WHERE user_login = ?", (User.password(), username))
         connect.commit()
+        print('Parola a fost actualizata.')
         
     @classmethod
-    def change_tag(cls, user_login):
+    def change_tag(cls, username):
         print("""
 *****  *****  *   *  *  *   *  ****     *    *****  *****    *****    *    *****
 *      *      *   *  *  ** **  *   *   * *   *   *  *          *     * *   *    
@@ -278,11 +302,12 @@ class User:
     *  *      *   *  *  *   *  *   *  *   *  *  *   *          *    *   *  *   *
 *****  *****  *   *  *  *   *  ****   *   *  *   *  *****      *    *   *  *****
 """)
-        cursor.execute("UPDATE users SET user_tag = ? WHERE user_login = ?", (User.tag(), user_login))
+        cursor.execute("UPDATE users SET user_tag = ? WHERE user_login = ?", (User.tag(), username))
         connect.commit()
+        print('Tipul contului a fost actualizat.')
 
     @classmethod
-    def change_name(cls, user_login):
+    def change_name(cls, username):
         while True:
             try:
                 option = int(input("""
@@ -291,15 +316,18 @@ class User:
             Pentru anulare, selectati 3.
         Optiune: """))
                 if option == 1:
-                    cursor.execute("UPDATE users SET user_last_name = ? WHERE user_login = ?", (User.last_name(), user_login))
+                    cursor.execute("UPDATE users SET user_last_name = ? WHERE user_login = ?", (User.last_name(), username))
                 elif option == 2:
-                    cursor.execute("UPDATE users SET user_first_name = ? WHERE user_login = ?", (User.first_name(), user_login))
-                else:
+                    cursor.execute("UPDATE users SET user_first_name = ? WHERE user_login = ?", (User.first_name(), username))
+                elif option == 3:
                     print('Anulare...')
                     return
+                else:
+                    print('Optiunea selectata nu este valida.')
             except ValueError:
                 print(cls.valoare_invalida)
             connect.commit()
+            print('Numele a fost actualizat.')
 
     # Functii admin
     # Afisare utilizatori
@@ -339,4 +367,5 @@ if __name__ == '__main__':
 #    User.change_password('soptr')
 #    User.change_tag('soptr')
 #    User.change_name('soptr')
-    User.delete_user()
+    # User.delete_user()
+    User.tag('Admin')
