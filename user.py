@@ -142,8 +142,8 @@ class User:
 
     # Creare utilizator
     @staticmethod
-    def initiate_create():
-        create = User(User.username(), User.password(), User.first_name(), User.last_name(), User.tag())
+    def initiate_create(tag):
+        create = User(User.username(), User.password(), User.first_name(), User.last_name(), User.tag(tag))
         create.insert_user()
 
     # Login utilizator
@@ -278,6 +278,18 @@ class User:
                         print('Optiunea selectata nu este valida.')
                 except ValueError:
                     print(cls.valoare_invalida)
+
+    @staticmethod
+    def details_user(username):
+        first_name = tuple([name[0] for name in cursor.execute("SELECT user_first_name FROM users WHERE user_login = '{}'".format(username))])
+        last_name = tuple([name[0] for name in cursor.execute("SELECT user_last_name FROM users WHERE user_login = '{}'".format(username))])
+        tag = tuple([tag[0] for tag in cursor.execute("SELECT user_tag FROM users WHERE user_login = '{}'".format(username))])
+        print(f"""
+    Nume de utilizator: {username}
+    Prenume: {first_name[0]}
+    Nume: {last_name[0]}
+    Tip de utilizator: {tag[0]}
+""")
     
     # Account settings
     @classmethod
@@ -302,7 +314,7 @@ class User:
     *  *      *   *  *  *   *  *   *  *   *  *  *   *          *    *   *  *   *
 *****  *****  *   *  *  *   *  ****   *   *  *   *  *****      *    *   *  *****
 """)
-        cursor.execute("UPDATE users SET user_tag = ? WHERE user_login = ?", (User.tag(), username))
+        cursor.execute("UPDATE users SET user_tag = ? WHERE user_login = ?", (User.tag(''), username))
         connect.commit()
         print('Tipul contului a fost actualizat.')
 
@@ -368,4 +380,5 @@ if __name__ == '__main__':
 #    User.change_tag('soptr')
 #    User.change_name('soptr')
     # User.delete_user()
-    User.tag('Admin')
+    # User.tag('Admin')
+    User.details_user('ssilviu')
