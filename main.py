@@ -14,6 +14,14 @@ while True:
 """)
     try:
         option = int(input('Optiunea dumneavoastra: '))
-        menu[option]()
+        if option == 1:
+            menu[option]()
+        elif option == 2:
+            menu[option]('')
+        elif option == 3:
+            print('Iesire program...')
+            menu[option]()
+        else:
+            print('Optiunea selectata nu este valida.')
     except ValueError:
         print(User.valoare_invalida)
