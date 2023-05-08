@@ -17,7 +17,7 @@ while True:
         if option == 1:
             menu[option]()
         elif option == 2:
-            menu[option]('')
+            menu[option]('New')
         elif option == 3:
             print('Iesire program...')
             menu[option]()

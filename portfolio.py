@@ -62,16 +62,25 @@ class Portfolio:
                     return category_list[portfolio_category]
             except ValueError:
                 print(__class__.valoare_invalida)
-    
+
+    @staticmethod
+    def initiate_create(name, username):
+        create = Portfolio(Portfolio.title(), Portfolio.category(), name, username)
+        create.insert_portfolio()
+        connect.close()
+
     def insert_portfolio(self):
         cursor.execute("""
-        INSERT INTO portfolios (portfolio_title, portfolio_category, portfolio_photographer_name) VALUES (?, ?, ?)
-        """, (self.title, self.category, self.name))
+        INSERT INTO portfolios (portfolio_title, portfolio_category, portfolio_photographer_name, portfolio_username) VALUES (?, ?, ?, ?)
+        """, (self.title, self.category, self.name, self.username))
         connect.commit()
         print('Portofoliul a fost creat cu succes.')
 
     @classmethod
-    def menu_portfolio(cls, name, username):
+    def menu_portfolio(cls, username):
+        cursor.execute("SELECT user_first_name, user_last_name FROM users WHERE user_login = '{}'".format(username))
+        db_name_t = cursor.fetchone()
+        db_name = db_name_t[0] + ' ' + db_name_t[1]
         print("""
 Pentru a crea un portofoliu, selectati 1.
 Pentru afisarea portofoliilor, selectati 2.
@@ -87,11 +96,12 @@ Pentru revenirea la meniul anterior, selectati 6.
             4: '', #edit portfolio
             5: '' #delete portfolio
         }
+        # DE FILTRAT MENIU IN FUNCTIE DE TAG (Utilizator/Fotograf)
         while True:
             try:
                 option = int(input('Optiunea dumneavoastra: '))
                 if option == 1:
-                    menu_portfolio[option](name, username)
+                    menu_portfolio[option](db_name, username)
                 elif option == 2 or option == 3:
                     menu_portfolio[option]()
                 elif option == 4 or option == 5:
@@ -104,11 +114,6 @@ Pentru revenirea la meniul anterior, selectati 6.
             except ValueError:
                 print(cls.valoare_invalida)
 
-    @classmethod
-    def initiate_create(cls, name, username):
-        create = Portfolio(Portfolio.title(), Portfolio.category(), name, username)
-        create.insert_portfolio()
-        connect.close()
 
     @staticmethod
     def display_portfolio():
