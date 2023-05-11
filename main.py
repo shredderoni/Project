@@ -2,8 +2,8 @@ from user import User
 import sys
 
 menu = {
-    1: User.initiate_login,
-    2: User.initiate_create,
+    1: User.user_login,
+    2: User.user_create,
     3: sys.exit
 }
 
@@ -11,6 +11,7 @@ while True:
     print("""
     Pentru login, selectati 1.
     Pentru a crea un cont nou, selectati 2.
+    Pentru a iesi din program, selectati 3.
 """)
     try:
         option = int(input('Optiunea dumneavoastra: '))
