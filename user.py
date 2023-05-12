@@ -40,10 +40,10 @@ class User:
             create_username = input("Username: ")
             check_if_exist = [user[0] for user in cursor.execute("SELECT user_login FROM users")]
             if create_username in check_if_exist:
-                print("Acest username este in folosinta. Va rugam alegeti altul.")
+                print("\nAcest username este in folosinta. Va rugam alegeti altul.")
                 check = False
             elif create_username.isalpha() != True:
-                print("Username-ul trebuie sa contina doar litere.")
+                print("\nUsername-ul trebuie sa contina doar litere.")
                 check = False
             else:
                 check = True
@@ -52,34 +52,31 @@ class User:
     @staticmethod
     def password():
         SpecialChar = ['!', '%', '&', '$', '#']
-        print('''ATENTIE! Parola trebuie sa contina:
+        print("""ATENTIE! Parola trebuie sa contina:
         - minim 8 caractere.
         - minim o majuscula.
         - minim o minuscula.
         - minim o cifra
-        - minim unul dintre caracterele !, %, &, $, #''')
+        - minim unul dintre caracterele !, %, &, $, #
+""")
 
-        check = False
-        while not check:
+        while True:
             create_password = input("Password: ")
             if len(create_password) < 8:
-                print("Parola trebuie sa contina minim 8 caractere.")
-                check = False
+                print("\nParola trebuie sa contina minim 8 caractere.")
             elif not any(char.isdigit() for char in create_password):
-                print('Parola trebuie sa contina minim o cifra.')
-                check = False
+                print('\nParola trebuie sa contina minim o cifra.')
             elif not any(char.isupper() for char in create_password):
-                print('Parola trebuie sa contina minim o majuscula.')
-                check = False
+                print('\nParola trebuie sa contina minim o majuscula.')
             elif not any(char.islower() for char in create_password):
-                print('Parola trebuie sa contina minim o minuscula.')
-                check = False
+                print('\nParola trebuie sa contina minim o minuscula.')
             elif not any(char in SpecialChar for char in create_password):
-                print('Parola trebuie sa contina minim unul dintre caracterele !, %, &, $, #.')
-                check = False
+                print('\nParola trebuie sa contina minim unul dintre caracterele !, %, &, $, #.')
             else:
-                check = True
-                return create_password
+                encodedPw = create_password.encode('utf-8')
+                saltGen = bcrypt.gensalt()
+                hashedPw = bcrypt.hashpw(encodedPw, saltGen)
+                return hashedPw
             
     @staticmethod
     def first_name():
@@ -87,7 +84,7 @@ class User:
         while not check:
             create_first_name = input('Prenume: ')
             if set(create_first_name).difference(__class__.characters):
-                print('Numele trebuie sa contina doar litere.')
+                print('\nNumele trebuie sa contina doar litere.')
             else:
                 check = True
                 return create_first_name
@@ -98,7 +95,7 @@ class User:
         while not check:
             create_last_name = input('Nume: ')
             if set(create_last_name).difference(__class__.characters): 
-                print('Numele trebuie sa contina doar litere.')
+                print('\nNumele trebuie sa contina doar litere.')
             else:
                 check = True
                 return create_last_name
@@ -124,14 +121,14 @@ class User:
                 if state == 'New' or state == 'Utilizator':
                         creare_tag = int(input('\nIn ce scop creati acest cont? (numarul tipului, de ex. 1): '))
                         if creare_tag not in range(1,3):
-                            print('Va rugam selectati una din optiunile valabile.')
+                            print('\nVa rugam selectati una din optiunile valabile.')
                         else:
                             check = True
                             return options[creare_tag]
                 else:
                         creare_tag = int(input('\nIn ce scop creati acest cont? (numarul tipului, de ex. 1): '))
                         if creare_tag not in range(1,4): 
-                            print('Va rugam selectati una din optiunile valabile.')
+                            print('\nVa rugam selectati una din optiunile valabile.')
                         else:
                             check = True
                             return options[creare_tag]
@@ -144,7 +141,7 @@ class User:
         INSERT INTO users (user_login, user_password, user_first_name, user_last_name, user_tag) VALUES (?, ?, ?, ?, ?)
         """, (self.username, self.password, self.first_name, self.last_name, self.tag))
         connect.commit()
-        print('Contul a fost creat cu succes.')
+        print('\nContul a fost creat cu succes.')
 
     # Creare utilizator
     @staticmethod
@@ -161,35 +158,35 @@ class User:
     * LOGIN *
     *********
 """)
-
-        check_username = False
-        while not check_username:
-            username = input('Username: ')
+        while True:
+            username = input('\nUsername: ')
             check_if_exist = [user[0] for user in cursor.execute("SELECT user_login FROM users")]
             if username not in check_if_exist: 
-                print("Acest utilizator nu exista.")
+                print("\nAcest utilizator nu exista.")
             else:
-                check_username = True
+                break
         cursor.execute("SELECT user_password FROM users WHERE user_login = '{}'".format(username))
         db_password = cursor.fetchone()[0]
         check_password = 0
         while check_password < 3:
             password = input('Password: ')
-            if password != db_password:
+            password = password.encode('utf-8')
+            verify_password = bcrypt.checkpw(password, db_password)
+            if not verify_password:
                 check_password += 1
                 print(f'Parola este gresita! Mai aveti {3-check_password} incercari.')
             else:
                 check_password += 3
+                print('\nV-ati logat cu succes!')
                 cls.username = username
                 cls.user_menu()
-        print('V-ati logat cu succes!')
 
     # Meniu principal dupa login
     @classmethod
     def user_menu(cls):
         main_menu = {
-            1: cls.user_submenu, #submenu user
-            2: Portfolio.portfolio_menu, #submenu portfolio
+            1: cls.user_submenu,
+            2: Portfolio.portfolio_menu,
         }
 
         while True:
@@ -205,10 +202,10 @@ class User:
                 elif option == 2:
                     main_menu[option](cls.username)
                 elif option == 3:
-                    print('Iesire submeniu...')
+                    print('\nIesire submeniu...')
                     return
                 else:
-                    print('Optiunea selectata nu este valida.')
+                    print('\nOptiunea selectata nu este valida.')
             except ValueError:
                 print(cls.valoare_invalida)
 
@@ -226,7 +223,7 @@ class User:
     Pentru a schimba numele, selectati 3.
     Pentru a schimba tipul de utilizator, selectati 4.        
     Pentru a reveni la meniul anterior, selectati 5.
-    """)
+""")
                 sub_menu = {
                     1: cls.user_details,
                     2: cls.change_password,
@@ -240,10 +237,10 @@ class User:
                     elif option == 4:
                         sub_menu[option]('Utilizator')
                     elif option == 5:
-                        print('Iesire submeniu...')
+                        print('\nIesire submeniu...')
                         return
                     else:
-                        print('Optiunea selectata nu este valida.')    
+                        print('\nOptiunea selectata nu este valida.')    
                 except ValueError:
                     print(cls.valoare_invalida)
 
@@ -272,10 +269,10 @@ class User:
                     elif option == 6:
                         sub_menu[option]('Admin')
                     elif option == 7:
-                        print('Iesire submeniu...')
+                        print('\nIesire submeniu...')
                         return
                     else:
-                        print('Optiunea selectata nu este valida.')
+                        print('\nOptiunea selectata nu este valida.')
                 except ValueError:
                     print(cls.valoare_invalida)
 
@@ -301,30 +298,35 @@ class User:
 """)
         cursor.execute("UPDATE users SET user_password = ? WHERE user_login = ?", (User.password(), cls.username))
         connect.commit()
-        print('Parola a fost actualizata.')
+        print('\nParola a fost actualizata.')
 
     @classmethod
     def change_name(cls):
         while True:
             try:
                 option = int(input("""
-            Pentru schimbare "nume", selectati 1.
-            Pentru schimbare "prenume", selectati 2.
-            Pentru anulare, selectati 3.
-        Optiune: """))
+    Pentru schimbare "nume", selectati 1.
+    Pentru schimbare "prenume", selectati 2.
+    Pentru anulare, selectati 3.
+Optiune: 
+"""))
                 if option == 1:
                     cursor.execute("UPDATE users SET user_last_name = ? WHERE user_login = ?", (User.last_name(), cls.username))
                 elif option == 2:
                     cursor.execute("UPDATE users SET user_first_name = ? WHERE user_login = ?", (User.first_name(), cls.username))
                 elif option == 3:
-                    print('Anulare...')
+                    print('\nAnulare...')
                     return
                 else:
-                    print('Optiunea selectata nu este valida.')
+                    print('\nOptiunea selectata nu este valida.')
             except ValueError:
                 print(cls.valoare_invalida)
+            cursor.execute(f"SELECT user_first_name, user_last_name FROM users WHERE user_login = '{cls.username}'")
+            db_name_t = cursor.fetchone()
+            name = db_name_t[1] + ' ' + db_name_t[0]
+            cursor.execute("UPDATE portfolios SET portfolio_photographer_name = ? WHERE portfolio_username = ?", (name, cls.username))
             connect.commit()
-            print('Numele a fost actualizat.')
+            print('\nNumele a fost actualizat.')
 
     @classmethod
     def change_tag(cls):
@@ -368,4 +370,5 @@ class User:
 
 
 if __name__ == '__main__':
-    User.user_menu()
+    #User.user_menu()
+    pass

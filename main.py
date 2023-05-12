@@ -20,9 +20,9 @@ while True:
         elif option == 2:
             menu[option]('New')
         elif option == 3:
-            print('Iesire program...')
+            print('\nIesire program...')
             menu[option]()
         else:
-            print('Optiunea selectata nu este valida.')
+            print('\nOptiunea selectata nu este valida.')
     except ValueError:
         print(User.valoare_invalida)
