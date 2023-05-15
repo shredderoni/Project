@@ -81,7 +81,7 @@ class Image:
 
     @classmethod
     def image_menu(cls, portfolio_id, username):
-        cursor.execute(f"SELECT user_tag FROM users WHERE username = '{username}'")
+        cursor.execute(f"SELECT user_tag FROM users WHERE user_login = '{username}'")
         tag = cursor.fetchone()[0]
         menu = {
             1: cls.image_catalog,
@@ -176,6 +176,8 @@ class Image:
                     return
             except ValueError:
                 print(__class__.valoare_invalida)
+            except KeyboardInterrupt:
+                return
 
     @staticmethod
     def image_data(username):
@@ -204,6 +206,8 @@ class Image:
                                 break
                         except ValueError:
                             print(__class__.valoare_invalida)
+                        except KeyboardInterrupt:
+                            return
                     cursor.execute("UPDATE images SET image_name = ? WHERE image_id = ?", (Image.name(), select))
                     connect.commit()
                     print('\nNumele a fost actualizat cu succes.')
@@ -235,6 +239,8 @@ class Image:
                                 break
                         except ValueError:
                             print(__class__.valoare_invalida)
+                        except KeyboardInterrupt:
+                            return
                     cursor.execute("UPDATE images SET image_settings = ? WHERE image_id = ?", (Image.settings(), select))
                     connect.commit()
                     print('\nSetarile imaginii au fost actualizate cu succes.')
@@ -267,6 +273,8 @@ class Image:
                                 break
                         except ValueError:
                             print(__class__.valoare_invalida)
+                        except KeyboardInterrupt:
+                            return
                     cursor.execute(f"DELETE FROM images WHERE image_id = '{select}'")
                     connect.commit()
                     print('\nImaginea a fost stearsa.')

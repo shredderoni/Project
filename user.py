@@ -33,7 +33,7 @@ class User:
 
     # Date pentru crearea utilizatorului
     @staticmethod
-    def username():
+    def create_username():
         print('ATENTIE! Username-ul trebuie sa contina doar litere!')
         check = False
         while not check:
@@ -135,6 +135,12 @@ class User:
             except ValueError:
                 print(__class__.valoare_invalida)
 
+    # Creare utilizator
+    @staticmethod
+    def user_create(state):
+        create = User(User.create_username(), User.password(), User.first_name(), User.last_name(), User.tag(state))
+        create.user_insert()
+
     # Trecerea utilizatorului in baza de date
     def user_insert(self):
         cursor.execute("""
@@ -142,13 +148,6 @@ class User:
         """, (self.username, self.password, self.first_name, self.last_name, self.tag))
         connect.commit()
         print('\nContul a fost creat cu succes.')
-
-    # Creare utilizator
-    @staticmethod
-    def user_create(state):
-        create = User(User.username(), User.password(), User.first_name(), User.last_name(), User.tag(state))
-        create.user_insert()
-        # connect.close()
 
     # Login utilizator
     @classmethod
@@ -323,7 +322,7 @@ Optiune:
                 print(cls.valoare_invalida)
             cursor.execute(f"SELECT user_first_name, user_last_name FROM users WHERE user_login = '{cls.username}'")
             db_name_t = cursor.fetchone()
-            name = db_name_t[1] + ' ' + db_name_t[0]
+            name = db_name_t[0] + ' ' + db_name_t[1]
             cursor.execute("UPDATE portfolios SET portfolio_photographer_name = ? WHERE portfolio_username = ?", (name, cls.username))
             connect.commit()
             print('\nNumele a fost actualizat.')

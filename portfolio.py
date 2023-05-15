@@ -70,7 +70,7 @@ class Portfolio:
     def name(username):
         cursor.execute(f"SELECT user_first_name, user_last_name FROM users WHERE user_login = '{username}'")
         db_name_t = cursor.fetchone()
-        return db_name_t[1] + ' ' + db_name_t[0]
+        return db_name_t[0] + ' ' + db_name_t[1]
 
     @staticmethod
     def portfolio_create(username):
@@ -97,7 +97,7 @@ class Portfolio:
         while True:
             if tag == 'Utilizator':
                 print("""
-    Pentru a vizualiza un portofoliu, selectati 1.
+    Pentru afisarea portofoliilor, selectati 1.
     Pentru a vizualiza pozele dintr-un portofoliu, selectati 2.
     Pentru a reveni la meniul anterior, selectati 3.
 """)
@@ -116,7 +116,7 @@ class Portfolio:
                     print(cls.valoare_invalida)
             elif tag in ['Fotograf', 'Admin']:
                 print("""
-    Pentru a vizualiza un portofoliu, selectati 1.
+    Pentru afisarea portofoliilor, selectati 1.
     Pentru a vizualiza pozele dintr-un portofoliu, selectati 2.
     Pentru mai multe optiuni, selectati 3.
     Pentru revenirea la meniul anterior, selectati 4.
@@ -147,9 +147,9 @@ class Portfolio:
         }
         while True: 
             print("""
-    Pentru a vizualiza un portfoliu, selectati 1.
+    Pentru a crea un portofoliu, selectati 1.
     Pentru a edita un portofoliu, selectati 2.
-    Pentru a sterge un portfoliu, selectati 3.
+    Pentru a sterge un portofoliu, selectati 3.
     Pentru a reveni la meniul anterior, selectati 4.
 """)
             try:
@@ -215,6 +215,8 @@ class Portfolio:
                     return portfolio_id
             except ValueError:
                 print(__class__.valoare_invalida)
+            except KeyboardInterrupt:
+                return
     
     @staticmethod
     def portfolio_select_edit(username):
@@ -230,7 +232,8 @@ class Portfolio:
                     return select
             except ValueError:
                 print(cls.valoare_invalida)
-
+            except KeyboardInterrupt:
+                return
                 
     @classmethod
     def portfolio_edit(cls, username):
@@ -292,4 +295,4 @@ class Portfolio:
 
             
 if __name__ == "__main__":
-    pass
+    Portfolio.portfolio_menu('soptr')
