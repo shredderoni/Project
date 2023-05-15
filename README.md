@@ -1,6 +1,6 @@
 ## Project
 
-![Program functionality](https://i.imgur.com/qZFOz7r.png)
+![Program functionality](program functionality.png)
 
 ## Functionalitati curente:
 
