@@ -1,6 +1,6 @@
 ## Project
 
-![Program functionality]('program functionality.png')
+![Program functionality](Program functionality.png)
 
 ## Functionalitati curente:
 
