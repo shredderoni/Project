@@ -155,7 +155,7 @@ class Image:
     # Vizualizare imagine
     @staticmethod
     def image_catalog(portfolio_id):
-        cursor.execute(f"SELECT image_id, image_name, image_data, image_settings, image_portfolio_title FROM images WHERE image_portfolio_id = '{portfolio_id}'")
+        cursor.execute(f"SELECT image_id, image_name, image_settings, image_portfolio_title FROM images WHERE image_portfolio_id = '{portfolio_id}'")
         data = cursor.fetchall()
         if len(data) == 0:
             print('\nNu exista imagini in acest portofoliu.')

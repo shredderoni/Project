@@ -1,9 +1,0 @@
-- catalog cu fotografi
-- fiecare fotograf cu portfolio lui
-- menu changes based on logged in User
-
-Photographer:
-    - add/remove/edit picture from their portfolio
-    - make edits to portfolio (add/remove, name, category)
-User:
-    - view portfolios
