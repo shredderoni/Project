@@ -231,7 +231,7 @@ class Portfolio:
                 else:
                     return select
             except ValueError:
-                print(cls.valoare_invalida)
+                print(__class__.valoare_invalida)
             except KeyboardInterrupt:
                 return
                 
