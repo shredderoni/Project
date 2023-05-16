@@ -2,9 +2,14 @@
 
 ![Program functionality](Functionality.png)
 
-## Functionalitati curente:
+Clienti de test:
+- admin / Admin1!@
+- soptr / Parola1!
 
-- Meniu principal
-- Meniu user
-- Submeniu user (setari cont)
-- Meniu portofolii (nimic momentan)
+Portofolii:
+- Anime, Id: 1, Categorie: Other
+- Portrete, Id: 2, Categorie: Portrait
+- Animale, Id: 3, Categorie: Animals
+
+Poze:
+- Chisa, Id: 2
