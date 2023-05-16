@@ -35,18 +35,14 @@ class User:
     @staticmethod
     def create_username():
         print('ATENTIE! Username-ul trebuie sa contina doar litere!')
-        check = False
-        while not check:
+        while True:
             create_username = input("Username: ")
             check_if_exist = [user[0] for user in cursor.execute("SELECT user_login FROM users")]
             if create_username in check_if_exist:
                 print("\nAcest username este in folosinta. Va rugam alegeti altul.")
-                check = False
             elif create_username.isalpha() != True:
                 print("\nUsername-ul trebuie sa contina doar litere.")
-                check = False
             else:
-                check = True
                 return create_username
     
     @staticmethod
@@ -101,7 +97,7 @@ class User:
                 return create_last_name
             
     @staticmethod
-    def tag(state):
+    def create_tag(state):
         options = {
             1: 'Utilizator',
             2: 'Fotograf',
@@ -138,7 +134,7 @@ class User:
     # Creare utilizator
     @staticmethod
     def user_create(state):
-        create = User(User.create_username(), User.password(), User.first_name(), User.last_name(), User.tag(state))
+        create = User(User.create_username(), User.password(), User.first_name(), User.last_name(), User.create_tag(state))
         create.user_insert()
 
     # Trecerea utilizatorului in baza de date
@@ -307,8 +303,8 @@ class User:
     Pentru schimbare "nume", selectati 1.
     Pentru schimbare "prenume", selectati 2.
     Pentru anulare, selectati 3.
-Optiune: 
-"""))
+
+Optiunea dumneavoastra: """))
                 if option == 1:
                     cursor.execute("UPDATE users SET user_last_name = ? WHERE user_login = ?", (User.last_name(), cls.username))
                 elif option == 2:
@@ -328,15 +324,15 @@ Optiune:
             print('\nNumele a fost actualizat.')
 
     @classmethod
-    def change_tag(cls):
+    def change_tag(cls, state):
         print("""
     *****************
     * SCHIMBARE TAG *
     *****************
 """)
-        cursor.execute("UPDATE users SET user_tag = ? WHERE user_login = ?", (User.tag('Utilizator'), cls.username))
+        cursor.execute("UPDATE users SET user_tag = ? WHERE user_login = ?", (cls.create_tag(state), cls.username))
         connect.commit()
-        print('Tipul contului a fost actualizat.')
+        print('\nTipul contului a fost actualizat.')
 
     # Functii admin
     # Afisare utilizatori
@@ -369,5 +365,5 @@ Optiune:
 
 
 if __name__ == '__main__':
-    #User.user_menu()
+    User.user_menu('testclient')
     pass

@@ -222,12 +222,17 @@ class Portfolio:
     def portfolio_select_edit(username):
         cursor.execute(f"SELECT portfolio_id, portfolio_title, portfolio_category FROM portfolios WHERE portfolio_username = '{username}'")
         while True:
-            for value in cursor.fetchall():
-                print(f'\nId: {value[0]}\nTitle: {value[1]}\nCategory: {value[2]}')
+            data = cursor.fetchall()
+            if len(data) == 0:
+                print('\nNu aveti niciun portofoliu creat.')
+                return
+            else:
+                for value in data:
+                    print(f'\nId: {value[0]}\nTitle: {value[1]}\nCategory: {value[2]}')
             try:
                 select = int(input('\nSelectati un portofoliu: '))
                 if select not in [id[0] for id in cursor.execute(f"SELECT portfolio_id FROM portfolios WHERE portfolio_username = '{username}'")]:
-                    print('Portofoliul selectat nu exista.')
+                    print('\nPortofoliul selectat nu exista.')
                 else:
                     return select
             except ValueError:
@@ -247,11 +252,15 @@ class Portfolio:
                 option = int(input('Optiunea dumneavoastra: '))
                 if option == 1:
                     id = cls.portfolio_select_edit(username)
+                    if id == None:
+                        return
                     cursor.execute("UPDATE portfolios SET portfolio_title = ? WHERE portfolio_id = ?", (cls.title(), id))
                     connect.commit()
                     print('\nTitlul a fost actualizat.')
                 elif option == 2:
                     id = cls.portfolio_select_edit(username)
+                    if id == None:
+                        return
                     cursor.execute("UPDATE portfolios SET portfolio_category = ? WHERE portfolio_id = ?", (cls.category(), id))
                     connect.commit()
                     print('\nCategoria a fost actualizata.')
@@ -266,11 +275,13 @@ class Portfolio:
     @classmethod
     def portfolio_delete(cls, username):
         id = cls.portfolio_select_edit(username)
+        if id == None:
+            return
         while True:
             print("""
-        Pentru confirmare, selectati 1. ATENTIE!: Se vor sterge si toate imaginile asociate cu acesta!
-        Pentru anulare, selectati 2.
-    """)
+    Pentru confirmare, selectati 1. ATENTIE!: Se vor sterge si toate imaginile asociate cu acesta!
+    Pentru anulare, selectati 2.
+""")
             try:
                 option = int(input('Optiunea dumneavoastra: '))
                 if option == 1:

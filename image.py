@@ -113,6 +113,11 @@ class Image:
                     if option == 1:
                         menu[option](portfolio_id)
                     elif option == 2:
+                        cursor.execute(f"SELECT portfolio_username FROM portfolios WHERE portfolio_id = '{portfolio_id}'")
+                        data = cursor.fetchone()[0]
+                        if data != username:
+                            print('\nPortofoliul selectat nu va apartine. Iesire submeniu...')
+                            return
                         menu[option](portfolio_id, username)
                     elif option == 3:
                         print('\nIesire submeniu...')
