@@ -26,17 +26,17 @@ class Image:
  *   Ati introdus o valoare invalida!   *
 * *  ********************************  * *
 """
-    def __init__(self, name, image, settings, portfolio_title, portfolio_id, username):
-        self.name = name
-        self.image = image
-        self.settings = settings
-        self.title = portfolio_title
-        self.id = portfolio_id
-        self.username = username
+    def __init__(self):
+        self.name = ''
+        self.image = ''
+        self.settings = ''
+        self.title = ''
+        self.id = ''
+        self.username = ''
 
     # Selectare imagine si inserare in baza de date
     @staticmethod
-    def name():
+    def create_name():
         check = False
         while not check:
             name = input('Selectati un nume pentru imagine: ')
@@ -47,7 +47,7 @@ class Image:
                 return name
 
     @staticmethod
-    def image():
+    def create_image():
         check = False
         while not check:
             image = input('Selectati imaginea (path to image): ')
@@ -60,7 +60,7 @@ class Image:
                 return f'{os.getcwd()}\\images\\{filename}.jpg'
             
     @staticmethod
-    def settings():
+    def create_settings():
         settings = input('Introduceti setarile camerei pentru aceasta imagine: ')
         return settings
 
@@ -72,20 +72,23 @@ class Image:
         connect.commit()
         print('Imaginea a fost adaugata cu succes.')
 
-    @staticmethod
-    def image_create(portfolio_id, username):
-        cursor.execute(f"SELECT portfolio_title FROM portfolios WHERE portfolio_id = '{portfolio_id}'") 
+    def image_create(self):
+        cursor.execute(f"SELECT portfolio_title FROM portfolios WHERE portfolio_id = '{self.id}'") 
         title = cursor.fetchone()[0]
-        add = Image(Image.name(), Image.image(), Image.settings(), title, portfolio_id, username)
-        add.image_insert()
+        self.name = self.create_name()
+        self.image = self.create_image()
+        self.settings = self.create_settings()
+        self.title = title
+        self.image_insert()
 
-    @classmethod
-    def image_menu(cls, portfolio_id, username):
-        cursor.execute(f"SELECT user_tag FROM users WHERE user_login = '{username}'")
+    def image_menu(self, portfolio_id, username):
+        self.id = portfolio_id
+        self.username = username
+        cursor.execute(f"SELECT user_tag FROM users WHERE user_login = '{self.username}'")
         tag = cursor.fetchone()[0]
         menu = {
-            1: cls.image_catalog,
-            2: cls.image_submenu
+            1: self.image_catalog,
+            2: self.image_submenu
         }
         while True:
             if tag == 'Utilizator':
@@ -96,12 +99,12 @@ class Image:
                 try:
                     option = int(input('Optiunea dumneavoastra: '))
                     if option == 1:
-                        menu[option](portfolio_id)
+                        menu[option]()
                     elif option == 2:
                         print('Iesire submeniu...')
                         return
                 except ValueError:
-                    print(__class__.valoare_invalida)
+                    print(self.valoare_invalida)
             elif tag in ['Fotograf', 'Admin']:
                 print("""
     Pentru a afisa imaginile, selectati 1.        
@@ -111,29 +114,28 @@ class Image:
                 try:
                     option = int(input('Optiunea dumneavoastra: '))
                     if option == 1:
-                        menu[option](portfolio_id)
+                        menu[option]()
                     elif option == 2:
-                        cursor.execute(f"SELECT portfolio_username FROM portfolios WHERE portfolio_id = '{portfolio_id}'")
+                        cursor.execute(f"SELECT portfolio_username FROM portfolios WHERE portfolio_id = '{self.id}'")
                         data = cursor.fetchone()[0]
-                        if data != username:
+                        if data != self.username:
                             print('\nPortofoliul selectat nu va apartine. Iesire submeniu...')
                             return
-                        menu[option](portfolio_id, username)
+                        menu[option]()
                     elif option == 3:
                         print('\nIesire submeniu...')
                         return
                     else:
                         print('\nOptiunea selectata nu este valida')
                 except ValueError:
-                    print(__class__.valoare_invalida)
+                    print(self.valoare_invalida)
 
-    @classmethod
-    def image_submenu(cls, portfolio_id, username):
+    def image_submenu(self):
         menu = {
-            1: cls.image_create,
-            2: cls.image_name_edit,
-            3: cls.image_settings_edit,
-            4: cls.image_delete,
+            1: self.image_create,
+            2: self.image_name_edit,
+            3: self.image_settings_edit,
+            4: self.image_delete,
         }
         while True:
             print("""
@@ -145,22 +147,19 @@ class Image:
 """)
             try:
                 option = int(input('Optiunea dumneavoastra: '))
-                if option == 1:
-                    menu[option](portfolio_id, username)
-                elif option in range(2,5):
-                    menu[option](username)
+                if option in range(1,5):
+                    menu[option]()
                 elif option == 5:
                     print('\nIesire submeniu...')
                     return
                 else:
                     print('\nOptiunea selectata nu este valida.')
             except ValueError:
-                print(cls.valoare_invalida)
+                print(self.valoare_invalida)
     
     # Vizualizare imagine
-    @staticmethod
-    def image_catalog(portfolio_id):
-        cursor.execute(f"SELECT image_id, image_name, image_settings, image_portfolio_title FROM images WHERE image_portfolio_id = '{portfolio_id}'")
+    def image_catalog(self):
+        cursor.execute(f"SELECT image_id, image_name, image_settings, image_portfolio_title FROM images WHERE image_portfolio_id = '{self.id}'")
         data = cursor.fetchall()
         if len(data) == 0:
             print('\nNu exista imagini in acest portofoliu.')
@@ -180,20 +179,18 @@ class Image:
                     image.show()
                     return
             except ValueError:
-                print(__class__.valoare_invalida)
+                print(self.valoare_invalida)
             except KeyboardInterrupt:
                 return
 
-    @staticmethod
-    def image_data(username):
+    def image_data(self):
         cursor.execute(f"SELECT image_id, image_name, image_settings, image_portfolio_title \
-                                                 FROM images WHERE image_username = '{username}'")
+                                                 FROM images WHERE image_username = '{self.username}'")
         for value in cursor.fetchall():
             print(f'\nId: {value[0]}\nName: {value[1]}\nSettings: {value[2]}\nPortfolio: {value[3]}')
 
-    @staticmethod
-    def image_name_edit(username):
-        Image.image_data(username)
+    def image_name_edit(self):
+        self.image_data()
         while True:
             print("""
     Pentru a continua, selectati 1.
@@ -205,15 +202,15 @@ class Image:
                     while True:
                         try:
                             select = int(input('Selectati o imagine: '))
-                            if select not in [id[0] for id in cursor.execute(f"SELECT image_id FROM images WHERE image_username = '{username}'")]:
+                            if select not in [id[0] for id in cursor.execute(f"SELECT image_id FROM images WHERE image_username = '{self.username}'")]:
                                 print('\nImaginea selectata nu exista.')
                             else:
                                 break
                         except ValueError:
-                            print(__class__.valoare_invalida)
+                            print(self.valoare_invalida)
                         except KeyboardInterrupt:
                             return
-                    cursor.execute("UPDATE images SET image_name = ? WHERE image_id = ?", (Image.name(), select))
+                    cursor.execute("UPDATE images SET image_name = ? WHERE image_id = ?", (self.create_name(), select))
                     connect.commit()
                     print('\nNumele a fost actualizat cu succes.')
                 elif option == 2:
@@ -222,11 +219,10 @@ class Image:
                 else:
                     print('\nOptiunea selectata nu este valida.')
             except ValueError:
-                print(__class__.valoare_invalida)
+                print(self.valoare_invalida)
 
-    @staticmethod
-    def image_settings_edit(username):
-        Image.image_data(username)
+    def image_settings_edit(self):
+        self.image_data()
         while True:
             print("""
     Pentru a continua, selectati 1.
@@ -238,15 +234,15 @@ class Image:
                     while True:
                         try:
                             select = int(input('Selectati o imagine: '))
-                            if select not in [id[0] for id in cursor.execute(f"SELECT image_id FROM images WHERE image_username = '{username}'")]:
+                            if select not in [id[0] for id in cursor.execute(f"SELECT image_id FROM images WHERE image_username = '{self.username}'")]:
                                 print('\nImaginea selectata nu exista.')
                             else:
                                 break
                         except ValueError:
-                            print(__class__.valoare_invalida)
+                            print(self.valoare_invalida)
                         except KeyboardInterrupt:
                             return
-                    cursor.execute("UPDATE images SET image_settings = ? WHERE image_id = ?", (Image.settings(), select))
+                    cursor.execute("UPDATE images SET image_settings = ? WHERE image_id = ?", (self.create_settings(), select))
                     connect.commit()
                     print('\nSetarile imaginii au fost actualizate cu succes.')
                 elif option == 2:
@@ -255,12 +251,11 @@ class Image:
                 else:
                     print('\nOptiunea selectata nu este valida.')
             except ValueError:
-                print(__class__.valoare_invalida)
+                print(self.valoare_invalida)
 
 
-    @staticmethod
-    def image_delete(username):
-        Image.image_data(username)
+    def image_delete(self):
+        self.image_data()
         while True:
             print("""
     Pentru a continua, selectati 1.
@@ -272,12 +267,12 @@ class Image:
                     while True:
                         try:
                             select = int(input('\nSelectati o imagine: '))
-                            if select not in [id[0] for id in cursor.execute(f"SELECT image_id FROM images WHERE image_username = '{username}'")]:
+                            if select not in [id[0] for id in cursor.execute(f"SELECT image_id FROM images WHERE image_username = '{self.username}'")]:
                                 print('\nImaginea selectata nu exista.')
                             else:
                                 break
                         except ValueError:
-                            print(__class__.valoare_invalida)
+                            print(self.valoare_invalida)
                         except KeyboardInterrupt:
                             return
                     cursor.execute(f"DELETE FROM images WHERE image_id = '{select}'")
@@ -289,7 +284,7 @@ class Image:
                 else:
                     print('\nOptiunea selectata nu este valida.')
             except ValueError:
-                print(__class__.valoare_invalida)
+                print(self.valoare_invalida)
 
 if __name__ == '__main__':
     pass

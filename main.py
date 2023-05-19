@@ -1,12 +1,6 @@
 from user import User
 import sys
 
-menu = {
-    1: User.user_login,
-    2: User.user_create,
-    3: sys.exit
-}
-
 while True:
     print("""
     Pentru login, selectati 1.
@@ -16,12 +10,14 @@ while True:
     try:
         option = int(input('Optiunea dumneavoastra: '))
         if option == 1:
-            menu[option]()
+            login = User()
+            login.user_login()
         elif option == 2:
-            menu[option]('New')
+            create = User()
+            create.user_create()
         elif option == 3:
             print('\nIesire program...')
-            menu[option]()
+            sys.exit()
         else:
             print('\nOptiunea selectata nu este valida.')
     except ValueError:

@@ -23,15 +23,15 @@ class Portfolio:
  *   Ati introdus o valoare invalida!   *
 * *  ********************************  * *
 """
-    def __init__(self, title, category, name, username):
-        self.title = title
-        self.category = category
-        self.name = name
-        self.username = username
+    def __init__(self):
+        self.title = ''
+        self.category = ''
+        self.name = ''
+        self.username = ''
     
     # Date pentru portofoliu si inserare in baza de date
     @staticmethod
-    def title():
+    def create_title():
         check = False
         while not check:
             portfolio_title = input("Selectati un nume pentru portofoliul dumneavoastra: ")
@@ -42,7 +42,7 @@ class Portfolio:
                 return portfolio_title
             
     @staticmethod
-    def category():
+    def create_category():
         category_list = {
             1: 'Landscape',
             2: 'Portrait',
@@ -67,15 +67,16 @@ class Portfolio:
                 print(__class__.valoare_invalida)
 
     @staticmethod
-    def name(username):
+    def create_name(username):
         cursor.execute(f"SELECT user_first_name, user_last_name FROM users WHERE user_login = '{username}'")
         db_name_t = cursor.fetchone()
         return db_name_t[0] + ' ' + db_name_t[1]
 
-    @staticmethod
-    def portfolio_create(username):
-        create = Portfolio(Portfolio.title(), Portfolio.category(), Portfolio.name(username), username)
-        create.portfolio_insert()
+    def portfolio_create(self):
+        self.title = self.create_title()
+        self.category = self.create_category()
+        self.name = self.create_name(self.username)
+        self.portfolio_insert()
 
     def portfolio_insert(self):
         cursor.execute("""
@@ -85,15 +86,11 @@ class Portfolio:
         print('Portofoliul a fost creat cu succes.')
 
     # Meniu principal
-    @classmethod
-    def portfolio_menu(cls, username):
-        cursor.execute(f"SELECT user_tag FROM users WHERE user_login = '{username}'")
+    def portfolio_menu(self, username):
+        self.username = username
+        print(self.username)
+        cursor.execute(f"SELECT user_tag FROM users WHERE user_login = '{self.username}'")
         tag = cursor.fetchone()[0]
-        menu = {
-            1: cls.portfolio_display,
-            2: Image.image_menu,
-            3: cls.portfolio_submenu,
-        }
         while True:
             if tag == 'Utilizator':
                 print("""
@@ -104,16 +101,17 @@ class Portfolio:
                 try:
                     option = int(input('Optiunea dumneavoastra: '))
                     if option == 1:
-                        menu[option]()
+                        self.portfolio_display()
                     elif option == 2:
-                        menu[option](cls.portfolio_select(), username)
+                        image = Image()
+                        image.image_menu(self.portfolio_select(), self.username)
                     elif option == 3:
                         print('Iesire submeniu...')
                         return
                     else:
                         print('\nOptiunea selectata nu este valida.')
                 except ValueError:
-                    print(cls.valoare_invalida)
+                    print(self.valoare_invalida)
             elif tag in ['Fotograf', 'Admin']:
                 print("""
     Pentru afisarea portofoliilor, selectati 1.
@@ -124,26 +122,26 @@ class Portfolio:
                 try:
                     option = int(input('Optiunea dumneavoastra: '))
                     if option == 1:
-                        menu[option]()
+                        self.portfolio_display()
                     elif option == 2:
-                        menu[option](cls.portfolio_select(), username)
+                        image = Image()
+                        image.image_menu(self.portfolio_select(), self.username)
                     elif option == 3:
-                        menu[option](username)
+                        self.portfolio_submenu()
                     elif option == 4:
                         print('Iesire submeniu...')
                         return
                     else:
                         print('\nOptiunea selectata nu este valida.')
                 except ValueError:
-                    print(cls.valoare_invalida)
+                    print(self.valoare_invalida)
 
     # Meniu secundar (dupa selectarea unui portofoliu)
-    @classmethod
-    def portfolio_submenu(cls, username):
+    def portfolio_submenu(self):
         menu = {
-            1: cls.portfolio_create,
-            2: cls.portfolio_edit,
-            3: cls.portfolio_delete
+            1: self.portfolio_create,
+            2: self.portfolio_edit,
+            3: self.portfolio_delete
         }
         while True: 
             print("""
@@ -155,14 +153,14 @@ class Portfolio:
             try:
                 option = int(input('Optiunea dumneavoastra: '))
                 if option in range(1,4):
-                    menu[option](username)
+                    menu[option]()
                 elif option == 4:
                     print('Iesire submeniu...')
                     return
                 else:
                     print('\nOptiunea selectata nu este valida.')
             except ValueError:
-                print(cls.valoare_invalida)
+                print(self.valoare_invalida)
 
     @staticmethod
     def portfolio_display():
@@ -209,8 +207,8 @@ class Portfolio:
         while True:
             try:
                 portfolio_id = int(input('\nSelectati portofoliul pe care doriti sa il vizualizati: '))
-                if portfolio_id not in [id[0] for id in cursor.execute("SELECT portfolio_id FROM portfolios")]:
-                    print('\nAcest portofoliu nu exista.')
+                if portfolio_id not in [id[0] for id in cursor.execute("SELECT portfolio_id FROM portfolios")]: 
+                    print('\nAcest portofoliu nu contine poze.')
                 else:
                     return portfolio_id
             except ValueError:
@@ -218,9 +216,8 @@ class Portfolio:
             except KeyboardInterrupt:
                 return
     
-    @staticmethod
-    def portfolio_select_edit(username):
-        cursor.execute(f"SELECT portfolio_id, portfolio_title, portfolio_category FROM portfolios WHERE portfolio_username = '{username}'")
+    def portfolio_select_edit(self):
+        cursor.execute(f"SELECT portfolio_id, portfolio_title, portfolio_category FROM portfolios WHERE portfolio_username = '{self.username}'")
         while True:
             data = cursor.fetchall()
             if len(data) == 0:
@@ -231,17 +228,16 @@ class Portfolio:
                     print(f'\nId: {value[0]}\nTitle: {value[1]}\nCategory: {value[2]}')
             try:
                 select = int(input('\nSelectati un portofoliu: '))
-                if select not in [id[0] for id in cursor.execute(f"SELECT portfolio_id FROM portfolios WHERE portfolio_username = '{username}'")]:
+                if select not in [id[0] for id in cursor.execute(f"SELECT portfolio_id FROM portfolios WHERE portfolio_username = '{self.username}'")]:
                     print('\nPortofoliul selectat nu exista.')
                 else:
                     return select
             except ValueError:
-                print(__class__.valoare_invalida)
+                print(self.valoare_invalida)
             except KeyboardInterrupt:
                 return
                 
-    @classmethod
-    def portfolio_edit(cls, username):
+    def portfolio_edit(self):
         while True:
             print("""
     Pentru a modifica titlul, selectati 1.
@@ -251,17 +247,22 @@ class Portfolio:
             try:
                 option = int(input('Optiunea dumneavoastra: '))
                 if option == 1:
-                    id = cls.portfolio_select_edit(username)
+                    id = self.portfolio_select_edit()
                     if id == None:
                         return
-                    cursor.execute("UPDATE portfolios SET portfolio_title = ? WHERE portfolio_id = ?", (cls.title(), id))
+                    title = self.create_title()
+                    cursor.execute("UPDATE portfolios SET portfolio_title = ? WHERE portfolio_id = ?", (title, id))
+                    cursor.execute(f"SELECT image_portfolio_id FROM images WHERE image_portfolio_id = '{id}'")
+                    images = [id[0] for id in cursor.fetchall()]
+                    if len(images) != 0:
+                        cursor.execute("UPDATE images SET image_portfolio_title = ? WHERE image_portfolio_id = ?", (title, id))
                     connect.commit()
                     print('\nTitlul a fost actualizat.')
                 elif option == 2:
-                    id = cls.portfolio_select_edit(username)
+                    id = self.portfolio_select_edit()
                     if id == None:
                         return
-                    cursor.execute("UPDATE portfolios SET portfolio_category = ? WHERE portfolio_id = ?", (cls.category(), id))
+                    cursor.execute("UPDATE portfolios SET portfolio_category = ? WHERE portfolio_id = ?", (self.create_category(), id))
                     connect.commit()
                     print('\nCategoria a fost actualizata.')
                 elif option == 3:
@@ -270,11 +271,10 @@ class Portfolio:
                 else:
                     print('\nOptiunea selectata nu este valida.')
             except ValueError:
-                print(cls.valoare_invalida)
+                print(self.valoare_invalida)
 
-    @classmethod
-    def portfolio_delete(cls, username):
-        id = cls.portfolio_select_edit(username)
+    def portfolio_delete(self):
+        id = self.portfolio_select_edit()
         if id == None:
             return
         while True:
@@ -286,13 +286,14 @@ class Portfolio:
                 option = int(input('Optiunea dumneavoastra: '))
                 if option == 1:
                     cursor.execute(f"SELECT image_data FROM images WHERE image_portfolio_id = '{id}'")
-                    path_to_image = cursor.fetchone()[0]
-                    try:
-                        os.remove(f'{path_to_image}')
-                    except OSError:
-                        pass
+                    if cursor.fetchone() != None:
+                        path_to_image = cursor.fetchone()[0]
+                        try:
+                            os.remove(f'{path_to_image}')
+                        except OSError:
+                            pass
+                        cursor.execute(f"DELETE FROM images WHERE image_portfolio_id = '{id}'")
                     cursor.execute(f"DELETE FROM portfolios WHERE portfolio_id = '{id}'")
-                    cursor.execute(f"DELETE FROM images WHERE image_portfolio_id = '{id}'")
                     connect.commit()
                     print('Portofoliul si imaginile asociate au fost sterse.')
                     return
@@ -302,8 +303,9 @@ class Portfolio:
                 else:
                     print('Optiunea selectata nu este valida.')
             except ValueError:
-                print(cls.valoare_invalida)
+                print(self.valoare_invalida)
 
             
 if __name__ == "__main__":
-    Portfolio.portfolio_menu('soptr')
+    # Portfolio.portfolio_menu('soptr')
+    Portfolio.portfolio_select()
