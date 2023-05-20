@@ -1,6 +1,11 @@
 from user import User
 import sys
 
+print("""
+    *******************
+    *    WELCOME !    *
+    *******************
+""")
 while True:
     print("""
     Pentru login, selectati 1.

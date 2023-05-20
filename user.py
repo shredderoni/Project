@@ -96,7 +96,6 @@ class User:
                 check = True
                 return create_last_name
             
-    # @staticmethod
     def create_tag(self):
         options = {
             1: 'Utilizator',
@@ -231,7 +230,7 @@ class User:
                     else:
                         print('\nOptiunea selectata nu este valida.')    
                 except ValueError:
-                    print(cls.valoare_invalida)
+                    print(self.valoare_invalida)
 
             elif self.tag == 'Admin':
                 print("""
@@ -261,7 +260,7 @@ class User:
                     else:
                         print('\nOptiunea selectata nu este valida.')
                 except ValueError:
-                    print(cls.valoare_invalida)
+                    print(self.valoare_invalida)
 
     # Detaliile contului
     def user_details(self):
