@@ -65,6 +65,7 @@ class Portfolio:
                     return category_list[portfolio_category]
             except ValueError:
                 print(__class__.valoare_invalida)
+        
 
     @staticmethod
     def create_name(username):

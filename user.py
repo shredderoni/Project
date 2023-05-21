@@ -341,15 +341,15 @@ Optiunea dumneavoastra: """))
                 option = int(input('Ce utilizator doriti sa stergeti? (Id, de ex "2"): '))
                 check_if_exist = [user[0] for user in cursor.execute("SELECT user_id FROM users")]
                 if option not in check_if_exist:
-                    print("Acest utilizator nu exista.")
+                    print("\nAcest utilizator nu exista.")
                 else:
                     check = True
                     cursor.execute("DELETE FROM users WHERE user_id = {}".format(option))
                     connect.commit()
+                    print('\nUtilizatorul a fost sters.')
                     return
             except ValueError:
                 print(__class__.valoare_invalida)
-
 
 if __name__ == '__main__':
     test = User()

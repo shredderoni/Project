@@ -3,6 +3,7 @@ import os, shutil, uuid
 from os.path import exists
 from PIL import Image as PILImage
 from string import ascii_letters
+from datetime import date
 
 connect = sql.connect("data.db")
 cursor = connect.cursor()
@@ -13,6 +14,7 @@ cursor.execute("""
             image_data NVARCHAR(255),
             image_settings NVARCHAR(255),
             image_portfolio_title NVARCHAR(60),
+            image_date NVARCHAR(255),
             image_portfolio_id INTEGER,
             image_username NVARCHAR(60)
         )
@@ -39,9 +41,9 @@ class Image:
     def create_name():
         check = False
         while not check:
-            name = input('Selectati un nume pentru imagine: ')
+            name = input('\nSelectati un nume pentru imagine: ')
             if set(name).difference(__class__.characters):
-                print('Numele imaginii trebuie sa contina doar litere.')
+                print('\nNumele imaginii trebuie sa contina doar litere.')
             else:
                 check = True
                 return name
@@ -50,9 +52,9 @@ class Image:
     def create_image():
         check = False
         while not check:
-            image = input('Selectati imaginea (path to image): ')
+            image = input('\nSelectati imaginea (path to image): ')
             if not exists(image):
-                print('Imaginea sau locatia nu exista.')
+                print('\nImaginea sau locatia nu exista.')
             else:
                 check = True
                 filename = str(uuid.uuid4())
@@ -61,16 +63,18 @@ class Image:
             
     @staticmethod
     def create_settings():
-        settings = input('Introduceti setarile camerei pentru aceasta imagine: ')
+        settings = input('\nIntroduceti setarile camerei pentru aceasta imagine: ')
         return settings
 
 
     def image_insert(self):
+        day = date.today()
+        day_modified = day.strftime('%B %d, %Y')
         cursor.execute("""
-        INSERT INTO images (image_name, image_data, image_settings, image_portfolio_title, image_portfolio_id, image_username) VALUES (?, ?, ?, ?, ?, ?)
-        """, (self.name, self.image, self.settings, self.title, self.id, self.username))
+        INSERT INTO images (image_name, image_data, image_settings, image_portfolio_title, image_date, image_portfolio_id, image_username) VALUES (?, ?, ?, ?, ?, ?, ?)
+        """, (self.name, self.image, self.settings, self.title, day_modified, self.id, self.username))
         connect.commit()
-        print('Imaginea a fost adaugata cu succes.')
+        print('\nImaginea a fost adaugata cu succes.')
 
     def image_create(self):
         cursor.execute(f"SELECT portfolio_title FROM portfolios WHERE portfolio_id = '{self.id}'") 
@@ -159,14 +163,14 @@ class Image:
     
     # Vizualizare imagine
     def image_catalog(self):
-        cursor.execute(f"SELECT image_id, image_name, image_settings, image_portfolio_title FROM images WHERE image_portfolio_id = '{self.id}'")
+        cursor.execute(f"SELECT image_id, image_name, image_settings, image_portfolio_title, image_date FROM images WHERE image_portfolio_id = '{self.id}'")
         data = cursor.fetchall()
         if len(data) == 0:
             print('\nNu exista imagini in acest portofoliu.')
             return
         else:
             for value in data:
-                print(f'\nId: {value[0]}\nNume: {value[1]}\nSetari camera: {value[2]}\nPortofoliu: {value[3]}')
+                print(f'\nId: {value[0]}\nNume: {value[1]}\nSetari camera: {value[2]}\nPortofoliu: {value[3]}\nDate: {value[4]}')
         while True:
             try:
                 select = int(input('\nCe imagine doriti sa vizualizati?: '))
@@ -184,10 +188,10 @@ class Image:
                 return
 
     def image_data(self):
-        cursor.execute(f"SELECT image_id, image_name, image_settings, image_portfolio_title \
+        cursor.execute(f"SELECT image_id, image_name, image_settings, image_portfolio_title, image_date \
                                                  FROM images WHERE image_username = '{self.username}'")
         for value in cursor.fetchall():
-            print(f'\nId: {value[0]}\nName: {value[1]}\nSettings: {value[2]}\nPortfolio: {value[3]}')
+            print(f'\nId: {value[0]}\nName: {value[1]}\nSettings: {value[2]}\nPortfolio: {value[3]}\nDate: {value[4]}')
 
     def image_name_edit(self):
         self.image_data()
